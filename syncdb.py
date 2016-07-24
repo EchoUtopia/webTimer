@@ -11,6 +11,8 @@ def get_list():
 def minute_to_timestamp(minute):
     minute = str(minute*5)
     strtime = time.strftime("%Y-%m-%d %H",time.localtime(time.time()))
-    strtime = "%s:00" % strtime
-    print strtime
-    strptime = time.strptime("")
+    strtime = "%s:%s:00" % (strtime,minute)
+    return time.mktime(time.strptime(strtime,"%Y-%m-%d %H:%M:%S"))
+
+def sync_to_mysql():
+    

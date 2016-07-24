@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <style type="text/css">
+      body {
+          width: 450px;
+          font-family: helvetica, arial, sans-serif;
+          font-size: 13px;
+      }
+      #nav {
+          float: right;
+      }
+      a {
+          text-decoration: none;
+          color: black;
+      }
+      a:focus {
+          outline: none;
+      }
+      #settings {
+          float: left;
+          margin-top: -1px;
+          font-size: 12px;
+      }
+      #settings a {
+          font-weight: bold;
+      }
+      #settings a:hover {
+          text-decoration: underline;
+      }
+      #data {
+          margin-top: 10px;
+      }
+      #table_div {
+          margin-top: 15px;
+      }
+      .active {
+          font-weight: bold;
+      }
+      #nodata {
+          display: none;
+          color: red;
+          font-weight: bold;
+      }
+      #nodata a {
+          text-decoration: underline;
+          color: red;
+      }
+    </style>
+
+    <!-- Load the AJAX API -->
+    <!-- <script src="https://www.google.com/jsapi"></script> -->
+    <!-- Load popup script -->
+    <script type="text/javascript" src="jquery-3.1.0.min.js"></script>
+
+    <script type="text/javascript" src="highcharts.js"></script>
+    <script src="popup.js"></script>
+  </head>
+
+  <body>
+    <div id="nav">
+      <a id="current_detail" href="#">当前详情记录</a>
+      &nbsp;|&nbsp;
+      <a id="today" href="#">今日概览</a>
+    </div>
+    <div id="settings">
+      <a id="options" href="#">查看更多访问信息</a>
+      &nbsp;|&nbsp;
+      <a id="share" href="#">分享</a>
+    </div>
+    <div style="clear:both"></div>
+    <div id="data">
+      <div id="chart_div"></div>
+    </div>
+  </body>
+</html>

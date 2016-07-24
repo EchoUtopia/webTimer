@@ -1,0 +1,21 @@
+{
+  "manifest_version": 2,
+  "name": "Web Timer",
+  "version": "0.1",
+  "description": "Keep track of how you spend your time on the web.",
+  "icons": { "128": "icon_128.jpg" },
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "permissions": [
+    "idle",
+    "tabs",
+    "http://192.168.1.150:8888/"
+  ],
+  "browser_action": {
+    "default_title": "Web Timer",
+    "default_icon": "icon_128.jpg",
+    "default_popup": "popup.html"
+  },
+  "content_security_policy": "script-src 'self' 'unsafe-eval' https://www.google.com https://127.0.0.1/upload; object-src 'self'"
+}
