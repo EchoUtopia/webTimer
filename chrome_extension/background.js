@@ -89,15 +89,25 @@ function updateData(){
 
 
                     //更新当天记录
-                    var now_hour = new Date().getHours();
+                    var date = new Date();
+                    var now_hour = date.getHours();
                     var today_domains = JSON.parse(localStorage['today_domains']);
                     if(! today_domains[domain]){
                         today_domains[domain] = 0;
                     }
                     if(now_hour != 0){
                         today_domains[domain] += update_interval;
-                    }else{
-                        today_domains = {domain:update_interval};
+                    }else{ 
+                        var now_minutes = date.getMinutes();
+                        var now_seconds = date.getSeconds();
+                        if(now_minutes != 0){
+                        today_domains[domain] += update_interval;
+                        }
+                        else if(now_seconds < 4 && now_minutes == 0){
+                            today_domains = {};
+                            today_domains[domain] = update_interval;
+                        }
+
                     }
                     localStorage['today_domains'] = JSON.stringify(today_domains);
                 }
