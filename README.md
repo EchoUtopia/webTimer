@@ -4,4 +4,9 @@
     
   chrome插件：
     参考https://github.com/dskang/webtimer里面的实现
+    当前5分钟访问记录效果图：
+    ![image](https://github.com/EchoUtopia/webTimer/blob/master/chrome_extension/screen_1.png)
+    
+    当天访问记录效果图：
+    ![image](https://github.com/EchoUtopia/webTimer/blob/master/chrome_extension/screen_2.png)
     
