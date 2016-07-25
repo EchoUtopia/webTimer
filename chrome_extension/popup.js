@@ -119,14 +119,13 @@ $(document).ready(function(){
 		for (var i in top_keys){
 			var percentage = Math.floor(domains[top_keys[i]]/total_time*360) + percentage;
 			percentage = percentage>180 ? percentage-180:percentage;
-			var rotation = 270 + percentage;
+			var rotation = percentage - 90;
 			data.push({"name":top_keys[i],"y":domains[top_keys[i]],"dataLabels":{"rotation":rotation}});
 		}
 
 		var percentage = Math.floor(other_time/total_time) + percentage;
-		var rotation = 270 + percentage;
+		var rotation = percentage - 90;
 		data.push({"name":"others","y":other_time,"dataLabels":{"rotation":rotation}});
-		console.log(data);
 		return data;
 
 	}
