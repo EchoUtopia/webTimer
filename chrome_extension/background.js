@@ -61,7 +61,7 @@ function updateData(){
     chrome.idle.queryState(20,function(state){
 
         if (state === "active"){
-            chrome.tabs.query({'lastFocusedWindow':true,"active":true},function(tabs){
+            chrome.tabs.query({'lastFocusedWindow':true,"active":true,"status":"complete"},function(tabs){
 
                 if (tabs.length === 0){
                     return;
@@ -103,7 +103,7 @@ function updateData(){
                         if(now_minutes != 0){
                         today_domains[domain] += update_interval;
                         }
-                        else if(now_seconds < 4 && now_minutes == 0){
+                        else if(now_seconds < 4){
                             today_domains = {};
                             today_domains[domain] = update_interval;
                         }
