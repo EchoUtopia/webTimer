@@ -58,7 +58,7 @@ function upload_data(){
 
 
 function updateData(){
-    chrome.idle.queryState(20,function(state){
+    chrome.idle.queryState(15,function(state){
 
         if (state === "active"){
             chrome.tabs.query({'lastFocusedWindow':true,"active":true,"status":"complete"},function(tabs){
