@@ -154,7 +154,7 @@ $(document).ready(function(){
 	    	},
 	        tooltip: {
 	            formatter: function () {
-	                return this.point.name + " : " + format_seconds(this.y);
+	                return this.point.name + "<br/>" + format_seconds(this.y);
 	            }
 	        },
 	        plotOptions: {  
