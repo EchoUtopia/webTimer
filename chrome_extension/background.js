@@ -61,56 +61,62 @@ function updateData(){
     chrome.idle.queryState(15,function(state){
 
         if (state === "active"){
-            chrome.tabs.query({'lastFocusedWindow':true,"active":true,"status":"complete"},function(tabs){
+            chrome.tabs.query({'status':"complete","active":true,"lastFocusedWindow":true,},function(tabs){
 
                 if (tabs.length === 0){
                     return;
                 }
 
                 var tab = tabs[0];
+                chrome.windows.get(tab.windowId,function(win){
+                    if(win.focused){
 
-                if(!inBlacklist(tab.url)){
-                    var domain = extractDomain(tab.url);
-                    var domains = JSON.parse(localStorage['domains']);
+                        if(!inBlacklist(tab.url)){
+                            var domain = extractDomain(tab.url);
+                            var domains = JSON.parse(localStorage['domains']);
 
-                    if(! domains[domain]){
-                        domains[domain] = 0;
-                    }
-                    var check_time = checkTime();
-                    if(check_time === false){
-                        domains[domain] += update_interval;
-                    }else{
-                        //upload_data();
-                        localStorage['time'] = check_time;
-                        domains = {};
-                        domains[domain] = update_interval;
-                    }
-                    localStorage['domains'] = JSON.stringify(domains);
+                            if(! domains[domain]){
+                                domains[domain] = 0;
+                            }
+                            var check_time = checkTime();
+                            if(check_time === false){
+                                domains[domain] += update_interval;
+                            }else{
+                                //upload_data();
+                                localStorage['time'] = check_time;
+                                domains = {};
+                                domains[domain] = update_interval;
+                            }
+                            localStorage['domains'] = JSON.stringify(domains);
 
 
-                    //更新当天记录
-                    var date = new Date();
-                    var now_hour = date.getHours();
-                    var today_domains = JSON.parse(localStorage['today_domains']);
-                    if(! today_domains[domain]){
-                        today_domains[domain] = 0;
-                    }
-                    if(now_hour != 0){
-                        today_domains[domain] += update_interval;
-                    }else{ 
-                        var now_minutes = date.getMinutes();
-                        var now_seconds = date.getSeconds();
-                        if(now_minutes != 0){
-                        today_domains[domain] += update_interval;
+                            //更新当天记录
+                            var date = new Date();
+                            var now_hour = date.getHours();
+                            var today_domains = JSON.parse(localStorage['today_domains']);
+                            if(! today_domains[domain]){
+                                today_domains[domain] = 0;
+                            }
+                            if(now_hour != 0){
+                                today_domains[domain] += update_interval;
+                            }else{ 
+                                var now_minutes = date.getMinutes();
+                                var now_seconds = date.getSeconds();
+                                if(now_minutes != 0){
+                                today_domains[domain] += update_interval;
+                                }
+                                else if(now_seconds < 4){
+                                    today_domains = {};
+                                    today_domains[domain] = update_interval;
+                                }
+
+                            }
+                            localStorage['today_domains'] = JSON.stringify(today_domains);
                         }
-                        else if(now_seconds < 4){
-                            today_domains = {};
-                            today_domains[domain] = update_interval;
-                        }
 
                     }
-                    localStorage['today_domains'] = JSON.stringify(today_domains);
-                }
+                });
+
             });
         }
 
