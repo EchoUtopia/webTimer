@@ -13,13 +13,24 @@ function setDefault(){
         localStorage['domains'] = JSON.stringify({});
     }
     if(!localStorage['today_domains']){
-        localStorage['today_domains'] = JSON.stringify({});
+        var day = new Date().getDay();
+        localStorage['today_domains'] = JSON.stringify({"time":day});
     }
 
 }
 function checkTime(){
     var pre_time = localStorage['time'];
     var now_time = Math.floor((new Date().getTime())/1000/count_interval)*count_interval;
+    if (pre_time == now_time){
+        return false;
+    }else{
+        return now_time;
+    }
+}
+
+function checkDay(){
+    var pre_time = localStorage['today_domains']['time'];
+    var now_time = new Date().getDay();
     if (pre_time == now_time){
         return false;
     }else{
@@ -97,19 +108,12 @@ function updateData(){
                             if(! today_domains[domain]){
                                 today_domains[domain] = 0;
                             }
-                            if(now_hour != 0){
+                            var check_day = checkDay();
+                            if(check_day === false){
                                 today_domains[domain] += update_interval;
-                            }else{ 
-                                var now_minutes = date.getMinutes();
-                                var now_seconds = date.getSeconds();
-                                if(now_minutes != 0){
-                                today_domains[domain] += update_interval;
-                                }
-                                else if(now_seconds < 4){
-                                    today_domains = {};
+                            }else{
+                                    today_domains = {"time":check_day};
                                     today_domains[domain] = update_interval;
-                                }
-
                             }
                             localStorage['today_domains'] = JSON.stringify(today_domains);
                         }
