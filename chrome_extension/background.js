@@ -14,7 +14,8 @@ function setDefault(){
     }
     if(!localStorage['today_domains']){
         var day = new Date().getDay();
-        localStorage['today_domains'] = JSON.stringify({"time":day});
+        localStorage['today'] = day;
+        localStorage['today_domains'] = JSON.stringify({});
     }
 
 }
@@ -29,7 +30,7 @@ function checkTime(){
 }
 
 function checkDay(){
-    var pre_time = localStorage['today_domains']['time'];
+    var pre_time = localStorage['today'];
     var now_time = new Date().getDay();
     if (pre_time == now_time){
         return false;
@@ -69,7 +70,7 @@ function upload_data(){
 
 
 function updateData(){
-    chrome.idle.queryState(15,function(state){
+    chrome.idle.queryState(30,function(state){
 
         if (state === "active"){
             chrome.tabs.query({'status':"complete","active":true,"lastFocusedWindow":true,},function(tabs){
@@ -98,12 +99,11 @@ function updateData(){
                                 domains = {};
                                 domains[domain] = update_interval;
                             }
+
                             localStorage['domains'] = JSON.stringify(domains);
 
 
                             //更新当天记录
-                            var date = new Date();
-                            var now_hour = date.getHours();
                             var today_domains = JSON.parse(localStorage['today_domains']);
                             if(! today_domains[domain]){
                                 today_domains[domain] = 0;
@@ -112,7 +112,8 @@ function updateData(){
                             if(check_day === false){
                                 today_domains[domain] += update_interval;
                             }else{
-                                    today_domains = {"time":check_day};
+                                    localStorage['today'] = check_day;
+                                    today_domains = {};
                                     today_domains[domain] = update_interval;
                             }
                             localStorage['today_domains'] = JSON.stringify(today_domains);
