@@ -1,7 +1,7 @@
 $(document).ready(function(){
 	var interval_code;
 	var count_interval = 300;
-	var top = 15;
+	var top = 20;
 
 	$("#today").click(function(){
 		draw_today();
@@ -12,7 +12,7 @@ $(document).ready(function(){
 		draw_detail();
 	});
 
-	$("#current_detail").click();
+	$("#today").click();
 
 	function sort_keys(obj){
 		var domain_keys = Object.keys(obj).sort(function(a,b){return obj[a] - obj[b]}).reverse()
@@ -113,19 +113,17 @@ $(document).ready(function(){
 		for (var i in other_keys){
 			other_time += domains[other_keys[i]];
 		}
-
+		var top_time = total_time - other_time;
 		var data = [];
-		var percentage = 0;
+		var rotation = -90;
 		for (var i in top_keys){
-			var percentage = Math.floor(domains[top_keys[i]]/total_time*360) + percentage;
-			percentage = percentage>180 ? percentage-180:percentage;
-			var rotation = percentage - 90;
+			var rotation = Math.floor(domains[top_keys[i]]/top_time*360) + rotation;
+			rotation = rotation>90 ? rotation-180:rotation;
 			data.push({"name":top_keys[i],"y":domains[top_keys[i]],"dataLabels":{"rotation":rotation}});
 		}
 
-		var percentage = Math.floor(other_time/total_time) + percentage;
-		var rotation = percentage - 90;
-		data.push({"name":"others","y":other_time,"dataLabels":{"rotation":rotation}});
+		var percentage = Math.round(other_time*1000/total_time)/10;
+		data.push({"name":"others","y":other_time,"dataLabels":{"percentage":percentage}});
 		return data;
 
 	}
@@ -154,7 +152,7 @@ $(document).ready(function(){
 	    	},
 	        tooltip: {
 	            formatter: function () {
-	                return this.point.name + "<br/>" + format_seconds(this.y);
+	                return this.point.name + " <br/> " + format_seconds(this.y);
 	            }
 	        },
 	        plotOptions: {  
@@ -173,10 +171,13 @@ $(document).ready(function(){
             }, 
 	        series: [{
 	        	type:"pie",
-	            data: data,
+	            data: data.slice(0,-1),
 	            name:"domain"
 	        }]
 	    });
+		var other_data = data[data.length-1];
+		var other_html = "<center>其他域名总占比:"+other_data.dataLabels.percentage+"%<br/>访问时间："+format_seconds(other_data.y)+"</center>";
+		$("#data").append(other_html);
 
 
 	}
