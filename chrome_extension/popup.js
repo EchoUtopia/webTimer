@@ -123,7 +123,7 @@ $(document).ready(function(){
 		}
 
 		var percentage = Math.round(other_time*1000/total_time)/10;
-		data.push({"name":"others","y":other_time,"dataLabels":{"percentage":percentage}});
+		data.push({"name":"others","y":other_time,"dataLabels":{"percentage":percentage,"total_time":total_time}});
 		return data;
 
 	}
@@ -176,7 +176,7 @@ $(document).ready(function(){
 	        }]
 	    });
 		var other_data = data[data.length-1];
-		var other_html = "<center>其他域名总占比:"+other_data.dataLabels.percentage+"%<br/>访问时间："+format_seconds(other_data.y)+"</center>";
+		var other_html = "<center>其他域名总占比:"+other_data.dataLabels.percentage+"%<br/>访问时间："+format_seconds(other_data.y)+"<br/>总访问时间："+format_seconds(other_data.dataLabels.total_time)+"</center>";
 		$("#data").append(other_html);
 
 
