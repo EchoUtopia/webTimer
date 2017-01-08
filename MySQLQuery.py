@@ -1,5 +1,7 @@
 import time
+from aop import *
 from my_logger import MyLogger
+from my_redis import MyRedis
 from MysQLConnection import MysQLConnection
 
 class MySQLQuery:
@@ -8,6 +10,7 @@ class MySQLQuery:
         self.connection = MysQLConnection()
         self.cusror = self.connection.get_cursor()
         self.logger = Mylogger().logger
+        self.redis = MyRedis()
 
     def get_table(self,timestamp,_type = "day"):
 
@@ -19,7 +22,7 @@ class MySQLQuery:
         elif _type == "year":
             _format = "%Y"
         date_str = time.strftime(_format, timestamp)
-        return "web_analyse_%s" % date_str
+        return "%s%s" % (settings.MYSQL_TABLE_PREFIX, date_str)
 
 
     def create_table(self,timestamp):
@@ -28,12 +31,12 @@ class MySQLQuery:
         CREATE TABLE `%s` (
           `user_id` bigint not null,
           `ip` bigint(32) NOT NULL,
+          `domain` varchar(100) NOT NULL,
           `time` bigint(24) not null,
           `total_time` smallint NOT NULL,
-          `visit_count` int(11) NOT NULL,
-          PRIMARY KEY (`time,user_id`),
+          PRIMARY KEY (`user_id`),
           KEY `analyse_user` (`user_id`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8
+        ) ENGINE=MyISAM DEFAULT CHARSET=utf8
         ''' % self.get_table(timestamp)
         try:
             self.cursor.execute(sql)
@@ -47,19 +50,28 @@ class MySQLQuery:
 
 
 
-    def insert_db(self,timestamp,user_id,ip,time,total_time,visit_count):
+    def insert_table(self, timestamp, user_id, ip, time, total_time, domain):
 
         table = self.get_table(timestamp)
         sql = '''
-            insert into %s ('user_id','ip','time','total_time','visit_count') values(%s,%s,%s,%s,%s)
+            insert into %s ('user_id','ip','time','total_time', 'domain') values(%s,%s,%s,%s,%s)
         '''
-        self.cursor.execute(sql,(table,user_id,ip,time,total_time,visit_count))
+        self.cursor.execute(sql,(table,user_id,ip,time,total_time,domain))
         self.cursor.commit()
 
-    def select(self,timestamp,sql,params):
+
+    def select(self, timestamp, sql, params):
         table = self.get_table(timestamp)
         params = params.insert(0,table)
-        result = self.cursor.execute(sql,params)
-        return self.cursor.fetchmany(result)
+        self.cursor.execute(sql,params)
+        return self.cursor.fetchmany()
+
+    def day_avg_time(self, user_id, time_stamp=None):
+        #TODO find table name in redis, if not found return false
+        sql = '''
+            select avg(total_time) from %s where user_id = %s
+        '''
+        self.cursor.execute(sql,(self.get_table(timestamp),user_id))
+        return self.cursor.fetchone()
 
 

@@ -15,4 +15,3 @@ def minute_to_timestamp(minute):
     return time.mktime(time.strptime(strtime,"%Y-%m-%d %H:%M:%S"))
 
 def sync_to_mysql():
-    

@@ -21,7 +21,7 @@ class MySQLConnection:
         except:
             return False
 
-    def reconn(self,number=100,stime=1):
+    def reconn(self,number=10,stime=1):
         _number = 0
         _status = False
 
