@@ -1,28 +1,43 @@
 import tornado.web
+from MySQLQuery import MySQLQuery
 
-class HomeHandler(tornado.web.RequestHandler):
+
+class BaseHandler(tornado.web.RequestHandler):
+    def initialize(self):
+        self.query = MySQLQuery()
+
+class HomeHandler(BaseHandler):
     pass
 
-class RegisterHandler(tornado.web.RequestHandler):
+
+class RegisterHandler(BaseHandler):
     pass
 
-class LoginHandler(tornado.web.RequestHandler):
+
+class LoginHandler(BaseHandler):
     pass
 
-class LogoutHandler(tornado.web.RequestHandler):
+
+class LogoutHandler(BaseHandler):
     pass
 
-class UploadHandler(tornado.web.RequestHandler):
+
+class UploadHandler(BaseHandler):
+    def post(self):
+        pass
+
+
+class DayHandler(BaseHandler):
     pass
 
-class DayHandler(tornado.web.RequestHandler):
+
+class WeekHandler(BaseHandler):
     pass
 
-class WeekHandler(tornado.web.RequestHandler):
+
+class MonthHandler(BaseHandler):
     pass
 
-class MonthHandler(tornado.web.RequestHandler):
-    pass
 
-class YearHandler(tornado.web.RequestHandler):
+class YearHandler(BaseHandler):
     pass

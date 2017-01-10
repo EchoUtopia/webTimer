@@ -1,27 +1,27 @@
 import pymysql
 import time
 from common import singleton
+from my_logger import MyLogger
+from conf import conf
+
 
 @singleton
 class MySQLConnection:
-    def __init__(self, host, user, password, db, port=3306, charset="utf8"):
-        self.host   = host  
-        self.user   = user  
-        self.password = password  
-        self.db     = db  
-        self.port   = port  
-        self.charset= charset  
-        self.conn   = None  
-        self._conn()  
 
-    def conn(self):
+    def __init__(self):
+        self.conn   = None
+        self.logger = MyLogger()
+        self._conn()
+
+    def _conn(self):
         try:
-            self.conn = pymysql.connect(self.host, self.user, self.password, self.db, self.port, self.charset)
+            self.conn = pymysql.connect(** conf.DB_CONFIG)
             return True
-        except:
+        except Exception as e:
+            self.logger.error(e)
             return False
 
-    def reconn(self,number=10,stime=1):
+    def reconn(self, number=10, stime=1):
         _number = 0
         _status = False
 
@@ -29,7 +29,7 @@ class MySQLConnection:
             try:
                 self.conn.ping()
                 _status = True
-            except:
+            except :
                 _number += 1
                 time.sleep(stime)
         return _status
