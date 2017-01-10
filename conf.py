@@ -1,11 +1,11 @@
 from common import *
 
 
-@singleton
-class Conf(object):
+class Conf(Singleton):
     __slot__ = (
         'MYSQL_TABLE_PREFIX', 'HTTP_PORT', 'DB_CONFIG', 'THREAD_POOL'
         )
+
     MYSQL_TABLE_PREFIX = 'web_analyse_'
     HTTP_PORT = 8080
     DB_CONFIG   =   {
@@ -18,10 +18,11 @@ class Conf(object):
     }
     THREAD_POOL = 5
     REDIS_TABLE_EXPIRE = 3600
-    REDIS_KEY = {
-        "table_name"    :"table:all",
-        "failed_table_name" :"failed_table:all"
-    }
+    REDIS_KEY = DotDict({
+        "table_name"    :"table:%s",
+        "failed_table_name" :"failed_table:%s",
+        "last_table"    :"last_table:%s",
+    })
     REDIS_PERSIST = {
         "host"  :"localhost",
         "port"  :"63380",

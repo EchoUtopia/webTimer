@@ -1,12 +1,11 @@
 import pymysql
 import time
-from common import singleton
+from common import Singleton
 from my_logger import MyLogger
 from conf import conf
 
 
-@singleton
-class MySQLConnection:
+class MySQLConnection(Singleton):
 
     def __init__(self):
         self.conn   = None

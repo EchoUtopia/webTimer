@@ -17,6 +17,10 @@ def check_key_exists(func, *args, **kwargs):
             return False
         kwargs.insert(0, table)
         try:
-            func(*args, **kwargs)
+            return func(*args, **kwargs)
         except ProgrammingError as e:
+            self.redis.add_failed_table(date_str)
+            self.logger.warn(e)
+            return False
 
+    return _warpper

@@ -1,10 +1,9 @@
 import logging
 import os
-from common import singleton
+from common import Singleton
 
 
-@singleton
-class MyLogger(object):
+class MyLogger(Singleton):
 
     def __init__(self, level=None):
         self.logger = logging.getLogger()

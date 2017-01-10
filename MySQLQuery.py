@@ -9,8 +9,7 @@ from tornado.concurrent import run_on_executor
 from concurrent.futures import ThreadPoolExecutor
 
 
-@singleton
-class MySQLQuery:
+class MySQLQuery(Singleton):
 
     def __init__(self):
         self.connection = MySQLConnection()
@@ -35,11 +34,10 @@ class MySQLQuery:
         return "%s%s" % (conf.MYSQL_TABLE_PREFIX, date_str), date_str
 
     @run_on_executor
-    def create_table(self, timestamp):
+    def create_table(self, table_name):
 
-        table_name, _ = self.gen_table(timestamp)
         sql = '''
-        CREATE TABLE `%s` (
+        CREATE TABLE if not exists `%s` (
           `user_id` bigint not null,
           `ip` bigint(32) NOT NULL,
           `domain` varchar(100) NOT NULL,
@@ -65,13 +63,18 @@ class MySQLQuery:
     def insert_table(self, timestamp, user_id, ip, total_time, domain):
 
         table, date_str = self.gen_table(timestamp)
+        redis_last_mysql_table = self.redis.LastMysqlTable
+        if not redis_last_mysql_table.get(date_str):
+            table = self.create_table(table)
+            redis_last_mysql_table.set(date_str)
+
         sql = '''
             insert into %s ('user_id','ip','time','total_time', 'domain') values(%s,%s,%s,%s,%s)
         '''
         try:
             self.cursor.execute(sql, (table, user_id, ip, time, total_time, domain))
             self.cursor.commit()
-            self.redis.add_mysql_table(date_str)
+            # self.redis.add_mysql_table(date_str)
         except Exception as e:
             self.logger.error(e)
             return False
@@ -80,17 +83,19 @@ class MySQLQuery:
             return True
 
     @run_on_executor
+    @check_key_exists
     def select(self, timestamp, sql, params):
             self.cursor.execute(sql, params)
             return self.cursor.fetchmany()
 
     @run_on_executor
-    def day_avg_time(self, user_id, time_stamp=None):
+    @check_key_exists
+    def day_avg_time(self, user_id, timestamp=None):
         #TODO find table name in redis, if not found return false
         sql = '''
             select avg(total_time) from %s where user_id = %s
         '''
-        self.cursor.execute(sql, (self.gen_table(time_stamp), user_id))
+        self.cursor.execute(sql, (table, user_id))
         return self.cursor.fetchone()
 
 

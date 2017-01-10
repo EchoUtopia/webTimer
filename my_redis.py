@@ -4,8 +4,7 @@ from common import *
 from conf import conf
 
 
-@singleton
-class MyRedis:
+class MyRedis(Singleton):
     def __init__(self):
         self.pool = redis.ConnectionPool(**conf.REDIS_CACHE)
         self.redis = redis.Redis(connection_pool=self.pool)
@@ -25,22 +24,51 @@ class MyRedis:
         date_str = time.strftime(_format, timestamp)
         return "%s:%s:%s" % (date_str, user, ip)
 
-    def add_mysql_table(self, date_str):
-        key = conf.REDIS_KEY.key
-        self.redis.sadd(key, date_str)
 
-    def add_failed_table(self, date_str):
-        key = conf.REDIS_KEY.failed_key
-        self.redis.sadd(key, date_str)
-        self.redis.expire(key, conf.REDIS_TABLE_EXPIRE)
+    class MysqlTable(object):
 
-    def get_failed_table(self, date_str):
-        key = conf.REDIS_KEY.failed_key
-        return self.redis.sismember(key, date_str)
+        key = conf.REDIS_KEY.table_name.format(date_str)
+        expire = conf.REDIS_TABLE_EXPIRE
+        redis = MyRedis._instance.redis
 
-    def get_mysql_table(self,):
-        key = conf.REDIS_KEY.key
-        return self.redis.lrange(key, 0, -1)
+        @staticmethod
+        def add(cls, date_str):
+            cls.redis.setex(cls.key, 1, cls.expire)
+
+        @staticmethod
+        def get(cls, date_str):
+            cls.redis.get(cls.key)
+
+
+    class FailedMysqlTable(object):
+
+        key = conf.REDIS_KEY.failed_table_name.format(date_str)
+        expire = conf.REDIS_TABLE_EXPIRE
+        redis = MyRedis._instance.redis
+
+        @staticmethod
+        def add(cls, date_str):
+            cls.redis.setex(cls.key, 1, cls.expire)
+
+        @staticmethod
+        def get(cls, date_str):
+            cls.redis.get(cls.key)
+
+
+    class LastMysqlTable(object):
+
+        key = conf.REDIS_KEY.last_table.format(date_str)
+        redis = MyRedis._instance.redis
+
+        @staticmethod
+        def set(cls, date_str):
+            cls.redis.set(cls.key, 1)
+
+        @staticmethod
+        def get(cls, date_str):
+            cls.redis.get(cls.key)
+
+
 
 
 
