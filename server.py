@@ -1,7 +1,10 @@
-import tornado.web
-from web_handler import *
-import tornado.ioloop
+import os
 import tornado.httpserver
+import tornado.ioloop
+import tornado.web
+from web_handlers import *
+
+
 class Application(tornado.web.Application):
 
     def __init__(self):
@@ -20,11 +23,11 @@ class Application(tornado.web.Application):
         settings = dict(
             template_path=os.path.join(os.path.dirname(__file__), "../www/templates"),
             static_path=os.path.join(os.path.dirname(__file__), "../www/static"),
-            cookie_secret = "..",
-            login_url = "auth/login",
-            debug = True,
-            serve_traceback = True,
-            autoescape = True,
+            cookie_secret="..",
+            login_url="auth/login",
+            debug=True,
+            serve_traceback=True,
+            autoescape=True,
 
         )
 
@@ -37,5 +40,5 @@ def main():
     tornado.ioloop.IOLoop.current().start()
 
 
-if __name__ = "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()

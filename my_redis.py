@@ -1,13 +1,14 @@
+import time
 import redis
 from common import singleton
 
 @singleton
 class MyRedis:
-    def __init__(self,host="127.0.0.1",port=6379,db=0):
-        self.pool = redis.ConnectionPool(host=host,port=port,db=db)
-        self.redis = redis.Redis(connection_pool=pool)
+    def __init__(self, host="127.0.0.1", port=6379, db=0):
+        self.pool = redis.ConnectionPool(host=host, port=port, db=db)
+        self.redis = redis.Redis(connection_pool=self.pool)
 
-    def get_table(self,user,ip,timestamp=None,_type="day"):
+    def get_table(self, user, ip, timestamp=None, _type="day"):
 
         timestamp = timestamp or time.localtime()
         if _type == "day":
@@ -17,7 +18,7 @@ class MyRedis:
         elif _type == "year":
             _format = "%Y"
         date_str = time.strftime(_format, timestamp)
-        return "%s:%s:%s" % (date_str,user,ip)
+        return "%s:%s:%s" % (date_str, user, ip)
 
-    def get_mysql_table():
+    def get_mysql_table(self):
         pass

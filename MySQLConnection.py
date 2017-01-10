@@ -1,10 +1,10 @@
-import MySQLdb
+import pymysql
 import time
 from common import singleton
 
 @singleton
 class MySQLConnection:
-    def __init__(self,host,user,password,db,port = 3306,charset=utf8):
+    def __init__(self, host, user, password, db, port=3306, charset="utf8"):
         self.host   = host  
         self.user   = user  
         self.password = password  
@@ -16,7 +16,7 @@ class MySQLConnection:
 
     def conn(self):
         try:
-            self.conn = MySQLdb.Connection(self.host,self.user,self.password,self.db,self.port,self.charset)
+            self.conn = pymysql.connect(self.host, self.user, self.password, self.db, self.port, self.charset)
             return True
         except:
             return False
@@ -33,6 +33,7 @@ class MySQLConnection:
                 _number += 1
                 time.sleep(stime)
         return _status
+
     def get_cursor(self):
         return self.conn.cursor
 
