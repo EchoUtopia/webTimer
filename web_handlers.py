@@ -33,9 +33,8 @@ class UploadHandler(BaseHandler):
 
     @tornado.gen.coroutine
     def post(self):
-        data = self.get_argument('data', None)
-        data = json.loads(data)
-        domains = data.get('domains')
+        data = json.loads(self.request.body)
+        domains = data.get('domains_data')
         timestamp = data.get('timestamp')
         ip = self.request.remote_ip
         user_id = self.get_current_user()['user_id']

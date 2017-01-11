@@ -24,49 +24,33 @@ class MyRedis(Singleton):
         date_str = time.strftime(_format, timestamp)
         return "%s:%s:%s" % (date_str, user, ip)
 
-    class MysqlTable(object):
 
-        key = conf.REDIS_KEY.table_name
+    def add_table(self, date_str):
+        key = conf.REDIS_KEY.table_name.format(date_str)
+        self.redis.setex(key, 1, conf.REDIS_TABLE_EXPIRE)
+
+    def set_table(self, date_str):
+        key = conf.REDIS_KEY.table_name.format(date_str)
+        return self.redis.get(key)
+
+    def add_failed_table(self, date_str):
+        key = conf.REDIS_KEY.failed_table_name.format(date_str)
         expire = conf.REDIS_TABLE_EXPIRE
+        self.redis.setex(key, 1, conf.REDIS_TABLE_EXPIRE)
 
-        @staticmethod
-        def add(cls, redis_obj, date_str):
-            cls.key = cls.key.format(date_str)
-            redis_obj.redis.setex(cls.key, 1, cls.expire)
+    def set_failed_table(self, date_str):
+        key = conf.REDIS_KEY.failed_table_name.format(date_str)
+        return self.redis.get(key)
 
-        @staticmethod
-        def get(cls, redis_obj, date_str):
-            cls.key = cls.key.format(date_str)
-            redis_obj.redis.get(cls.key)
+    def set_last_table(self, date_str):
+        key = conf.REDIS_KEY.last_table.format(date_str)
+        self.redis.set(key, 1)
 
-    class FailedMysqlTable(object):
+    def add_last_table(self, date_str):
+        key = conf.REDIS_KEY.last_table.format(date_str)
+        return self.redis.get(key)
 
-        key = conf.REDIS_KEY.failed_table_name
-        expire = conf.REDIS_TABLE_EXPIRE
 
-        @staticmethod
-        def add(cls, redis_obj, date_str):
-            cls.key = cls.key.format(date_str)
-            redis_obj.redis.setex(cls.key, 1, cls.expire)
-
-        @staticmethod
-        def get(cls, redis_obj, date_str):
-            cls.key = cls.key.format(date_str)
-            redis_obj.redis.get(cls.key)
-
-    class LastMysqlTable(object):
-
-        key = conf.REDIS_KEY.last_table
-
-        @staticmethod
-        def set(cls, redis_obj, date_str):
-            cls.key = cls.key.format(date_str)
-            redis_obj.redis.set(cls.key, 1)
-
-        @staticmethod
-        def get(cls, redis_obj, date_str):
-            cls.key = cls.key.format(date_str)
-            redis_obj.redis.get(cls.key)
 
 
 

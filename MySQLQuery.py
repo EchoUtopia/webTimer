@@ -21,7 +21,7 @@ class MySQLQuery(Singleton):
     @staticmethod
     def gen_table(timestamp, _type="day"):
 
-        timestamp = timestamp or time.localtime()
+        timestamp = timestamp and time.localtime(float(timestamp)) or time.localtime()
         _format = ""
         if _type == "day":
             _format = "%Y%m%d"
@@ -63,14 +63,14 @@ class MySQLQuery(Singleton):
     def insert_table(self, timestamp, user_id, ip, total_time, domain):
 
         table, date_str = self.gen_table(timestamp)
-        redis_last_mysql_table = self.redis.LastMysqlTable
-        if not redis_last_mysql_table.get(date_str):
+        if not self.redis.get_last_table(date_str):
             table = self.create_table(table)
-            redis_last_mysql_table.set(date_str)
+            self.redis.set_last_table(date_str)
 
         sql = '''
             insert into %s ('user_id','ip','time','total_time', 'domain') values(%s,%s,%s,%s,%s)
         '''
+        print "----sql",sql
         try:
             self.cursor.execute(sql, (table, user_id, ip, time, total_time, domain))
             self.cursor.commit()

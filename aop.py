@@ -15,13 +15,13 @@ def check_key_exists(func, *args, **kwargs):
     def _warpper():
         timestamp = kwargs.get('timestamp')
         table, date_str = self.gen_table(timestamp)
-        if self.redis.FailedMysqlTable.get(self.redis, date_str):
+        if self.redis.get_failed_table(date_str):
             return False
         kwargs.insert(0, table)
         try:
             return func(*args, **kwargs)
         except ProgrammingError as e:
-            self.redis.FailedMysqlTable.add(self.redis, date_str)
+            self.redis.add_failed_table(date_str)
             self.logger.warn(e)
             return False
 

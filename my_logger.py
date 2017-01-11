@@ -9,9 +9,9 @@ class MyLogger(Singleton):
         self.logger = logging.getLogger()
         _dir = "/var/log/web_analyse"
         _path = "%s/web_analyse" % _dir
-        if os.path.exists(_dir):
+        if not os.path.exists(_dir):
             os.mkdir(_dir)
-        if os.path.isfile(_path):
+        if not os.path.isfile(_path):
             f = open(_path, "w")
             f.close()
         self.handler = logging.FileHandler(_path)
@@ -21,3 +21,5 @@ class MyLogger(Singleton):
         level = logging.__dict__.get(level, logging.DEBUG)
         self.logger.setLevel(level)
 
+    def __getattr__(self, name):
+        return self.logger.__getattribute__(name)

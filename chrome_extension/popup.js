@@ -177,7 +177,7 @@ $(document).ready(function(){
 	    });
 		var other_data = data[data.length-1];
 		var other_html = "<center>其他域名总占比:"+other_data.dataLabels.percentage+"%<br/>访问时间："+format_seconds(other_data.y)+"<br/>总访问时间："+format_seconds(other_data.dataLabels.total_time)+"</center>";
-		$("#data").append(other_html);
+		$("#summary_div").html(other_html);
 
 
 	}
