@@ -24,49 +24,49 @@ class MyRedis(Singleton):
         date_str = time.strftime(_format, timestamp)
         return "%s:%s:%s" % (date_str, user, ip)
 
-
     class MysqlTable(object):
 
-        key = conf.REDIS_KEY.table_name.format(date_str)
+        key = conf.REDIS_KEY.table_name
         expire = conf.REDIS_TABLE_EXPIRE
-        redis = MyRedis._instance.redis
 
         @staticmethod
-        def add(cls, date_str):
-            cls.redis.setex(cls.key, 1, cls.expire)
+        def add(cls, redis_obj, date_str):
+            cls.key = cls.key.format(date_str)
+            redis_obj.redis.setex(cls.key, 1, cls.expire)
 
         @staticmethod
-        def get(cls, date_str):
-            cls.redis.get(cls.key)
-
+        def get(cls, redis_obj, date_str):
+            cls.key = cls.key.format(date_str)
+            redis_obj.redis.get(cls.key)
 
     class FailedMysqlTable(object):
 
-        key = conf.REDIS_KEY.failed_table_name.format(date_str)
+        key = conf.REDIS_KEY.failed_table_name
         expire = conf.REDIS_TABLE_EXPIRE
-        redis = MyRedis._instance.redis
 
         @staticmethod
-        def add(cls, date_str):
-            cls.redis.setex(cls.key, 1, cls.expire)
+        def add(cls, redis_obj, date_str):
+            cls.key = cls.key.format(date_str)
+            redis_obj.redis.setex(cls.key, 1, cls.expire)
 
         @staticmethod
-        def get(cls, date_str):
-            cls.redis.get(cls.key)
-
+        def get(cls, redis_obj, date_str):
+            cls.key = cls.key.format(date_str)
+            redis_obj.redis.get(cls.key)
 
     class LastMysqlTable(object):
 
-        key = conf.REDIS_KEY.last_table.format(date_str)
-        redis = MyRedis._instance.redis
+        key = conf.REDIS_KEY.last_table
 
         @staticmethod
-        def set(cls, date_str):
-            cls.redis.set(cls.key, 1)
+        def set(cls, redis_obj, date_str):
+            cls.key = cls.key.format(date_str)
+            redis_obj.redis.set(cls.key, 1)
 
         @staticmethod
-        def get(cls, date_str):
-            cls.redis.get(cls.key)
+        def get(cls, redis_obj, date_str):
+            cls.key = cls.key.format(date_str)
+            redis_obj.redis.get(cls.key)
 
 
 

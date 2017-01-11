@@ -1,5 +1,5 @@
 var update_interval = 3;
-var count_interval = 300;
+var count_interval = 3;
 var request_url = "127.0.0.1:8888/upload"
 
 function setDefault(){
@@ -62,6 +62,7 @@ function upload_data(){
     var timestamp = localStorage['time'];
     var domains_data = JSON.parse(localStorage['domains']);
     var data = {'timestamp':timestamp,"domains_data":domains_data,"user":"tmp_user"};
+    console.log(data)
     var xhr = new XMLHttpRequest();
     xhr.open("POST",request_url);
     xhr.send(JSON.stringify(data));
@@ -94,7 +95,7 @@ function updateData(){
                             if(check_time === false){
                                 domains[domain] += update_interval;
                             }else{
-                                //upload_data();
+                                upload_data();
                                 localStorage['time'] = check_time;
                                 domains = {};
                                 domains[domain] = update_interval;

@@ -1,10 +1,17 @@
+import json
 import tornado.web
+import tornado.gen
 from MySQLQuery import MySQLQuery
+from my_logger import MyLogger
 
 
 class BaseHandler(tornado.web.RequestHandler):
     def initialize(self):
         self.query = MySQLQuery()
+        self.logger = MyLogger()
+
+    def get_current_user(self):
+        return {'user_id'   :1}
 
 class HomeHandler(BaseHandler):
     pass
@@ -23,8 +30,22 @@ class LogoutHandler(BaseHandler):
 
 
 class UploadHandler(BaseHandler):
+
+    @tornado.gen.coroutine
     def post(self):
-        pass
+        data = self.get_argument('data', None)
+        data = json.loads(data)
+        domains = data.get('domains')
+        timestamp = data.get('timestamp')
+        ip = self.request.remote_ip
+        user_id = self.get_current_user()['user_id']
+        futures = []
+        for domain, total_time in domains.iteritems():
+            future = yield self.query.insert_table(timestamp, user_id, ip, total_time, domain)
+            futures.append(future)
+        for i in futures:
+            if i.exception:
+                self.logger.err(i.exception)
 
 
 class DayHandler(BaseHandler):

@@ -7,7 +7,7 @@ class Conf(Singleton):
         )
 
     MYSQL_TABLE_PREFIX = 'web_analyse_'
-    HTTP_PORT = 8080
+    HTTP_PORT = 8888
     DB_CONFIG   =   {
         'host'  :'localhost',
         'user'  :'appfame',
