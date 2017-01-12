@@ -1,14 +1,15 @@
 import logging
 import os
 from common import Singleton
+from conf import conf
 
 
 class MyLogger(Singleton):
 
     def __init__(self, level=None):
         self.logger = logging.getLogger()
-        _dir = "/var/log/web_analyse"
-        _path = "%s/web_analyse" % _dir
+        _dir = conf.LOG_DIR
+        _path = "%s/%s" % (_dir, conf.LOG_PATH)
         if not os.path.exists(_dir):
             os.mkdir(_dir)
         if not os.path.isfile(_path):

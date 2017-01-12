@@ -33,26 +33,27 @@ class MySQLQuery(Singleton):
         #TODO to cache the date_str for performance
         return "%s%s" % (conf.MYSQL_TABLE_PREFIX, date_str), date_str
 
-    @run_on_executor
     def create_table(self, table_name):
 
         sql = '''
         CREATE TABLE if not exists `%s` (
+          `id` bigint not null auto_increment,
           `user_id` bigint not null,
-          `ip` bigint(32) NOT NULL,
+          `ip` varchar(100) NOT NULL,
           `domain` varchar(100) NOT NULL,
-          `time` bigint(24) not null,
+          `timestamp` bigint(24) not null,
           `total_time` smallint NOT NULL,
-          PRIMARY KEY (`user_id`),
-          KEY `analyse_user` (`user_id`)
+          PRIMARY KEY (`id`)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8
         ''' % table_name
         try:
             self.cursor.execute(sql)
-            self.cursor.commit()
+            self.conn.commit()
             return table_name
         except Exception as e:
             self.logger.error("create table error: %s" % e)
+            # print sql
+            raise
             # if self.connection.reconn():
             #     # self.create_table()
             #
@@ -63,21 +64,24 @@ class MySQLQuery(Singleton):
     def insert_table(self, timestamp, user_id, ip, total_time, domain):
 
         table, date_str = self.gen_table(timestamp)
+        print self.redis.get_last_table(date_str)
         if not self.redis.get_last_table(date_str):
+            print "creating table"
             table = self.create_table(table)
-            self.redis.set_last_table(date_str)
+            if table:
+                self.redis.set_last_table(date_str)
 
         sql = '''
-            insert into %s ('user_id','ip','time','total_time', 'domain') values(%s,%s,%s,%s,%s)
+            insert into %s (user_id,ip,timestamp,total_time,domain) values(%s,%s,%s,%s,%s);
         '''
-        print "----sql",sql
+        print "-----sql", sql % (table, user_id, ip, timestamp, total_time, domain)
         try:
-            self.cursor.execute(sql, (table, user_id, ip, time, total_time, domain))
-            self.cursor.commit()
+            self.cursor.execute(sql, (table, user_id, ip, timestamp, total_time, domain))
             # self.redis.add_mysql_table(date_str)
+            self.conn.commit()
         except Exception as e:
             self.logger.error(e)
-            return False
+            raise
 
         else:
             return True
@@ -98,4 +102,5 @@ class MySQLQuery(Singleton):
         self.cursor.execute(sql, (table, user_id))
         return self.cursor.fetchone()
 
-
+    def __getattr__(self, item):
+        return self.connection.__getattribute__(item)

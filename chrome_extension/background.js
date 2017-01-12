@@ -1,6 +1,6 @@
 var update_interval = 3;
 var count_interval = 3;
-var request_url = "127.0.0.1:8888/upload"
+var request_url = "http://127.0.0.1:8888/upload"
 
 function setDefault(){
     if(!localStorage["blacklist"]){

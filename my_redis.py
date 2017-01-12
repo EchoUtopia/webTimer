@@ -24,7 +24,6 @@ class MyRedis(Singleton):
         date_str = time.strftime(_format, timestamp)
         return "%s:%s:%s" % (date_str, user, ip)
 
-
     def add_table(self, date_str):
         key = conf.REDIS_KEY.table_name.format(date_str)
         self.redis.setex(key, 1, conf.REDIS_TABLE_EXPIRE)
@@ -35,7 +34,6 @@ class MyRedis(Singleton):
 
     def add_failed_table(self, date_str):
         key = conf.REDIS_KEY.failed_table_name.format(date_str)
-        expire = conf.REDIS_TABLE_EXPIRE
         self.redis.setex(key, 1, conf.REDIS_TABLE_EXPIRE)
 
     def set_failed_table(self, date_str):
@@ -46,7 +44,7 @@ class MyRedis(Singleton):
         key = conf.REDIS_KEY.last_table.format(date_str)
         self.redis.set(key, 1)
 
-    def add_last_table(self, date_str):
+    def get_last_table(self, date_str):
         key = conf.REDIS_KEY.last_table.format(date_str)
         return self.redis.get(key)
 

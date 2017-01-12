@@ -24,17 +24,20 @@ class MySQLConnection(Singleton):
         _number = 0
         _status = False
 
-        while not _status and _number < number:
+        while not _status:
             try:
                 self.conn.ping()
                 _status = True
+                return _status
             except :
                 _number += 1
                 time.sleep(stime)
-        return _status
+                if _number == number:
+                    raise
+
 
     def get_cursor(self):
-        return self.conn.cursor
+        return self.conn.cursor()
 
     def close_conn(self):
         self.conn.close()
