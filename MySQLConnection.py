@@ -1,43 +1,46 @@
 import pymysql
 import time
+import Queue
 from common import Singleton
 from my_logger import MyLogger
 from conf import conf
-
+from pymysql.err import Error
 
 class MySQLConnection(Singleton):
 
     def __init__(self):
-        self.conn   = None
         self.logger = MyLogger()
         self._conn()
+        self.pool = Queue.Queue(maxsize=conf.MAX_POOL_SIZE)
+
+    def _init_pool(self):
+        for _ in range(0, conf.MAX_POOL_SIZE):
+            self.pool.put(self._conn())
+
+    def get_connection(self):
+        conn = self.pool.get()
+        self._maybe_reconn(conn)
+        return conn
+
+    def return_connection(self, conn):
+        return self.pool.put(conn)
 
     def _conn(self):
         try:
-            self.conn = pymysql.connect(** conf.DB_CONFIG)
-            return True
+            conn = pymysql.connect(** conf.DB_CONFIG)
+            conn.autocommit(True)
+            return conn
         except Exception as e:
             self.logger.error(e)
             return False
 
-    def reconn(self, number=10, stime=1):
-        _number = 0
-        _status = False
-
-        while not _status:
-            try:
-                self.conn.ping()
-                _status = True
-                return _status
-            except :
-                _number += 1
-                time.sleep(stime)
-                if _number == number:
-                    raise
-
-
-    def get_cursor(self):
-        return self.conn.cursor()
+    def _maybe_reconn(self, conn):
+        try:
+            conn.ping(reconnect=True)
+        except Error as e:
+            self.logger.warn(e)
+            raise e
 
     def close_conn(self):
-        self.conn.close()
+        while not self.pool.empty():
+            self.pool.get().close()

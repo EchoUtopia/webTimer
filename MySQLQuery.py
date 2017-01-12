@@ -13,7 +13,6 @@ class MySQLQuery(Singleton):
 
     def __init__(self):
         self.connection = MySQLConnection()
-        self.cursor = self.connection.get_cursor()
         self.logger = MyLogger().logger
         self.redis = MyRedis()
         self.executor = ThreadPoolExecutor(conf.THREAD_NUM)
@@ -33,6 +32,7 @@ class MySQLQuery(Singleton):
         #TODO to cache the date_str for performance
         return "%s%s" % (conf.MYSQL_TABLE_PREFIX, date_str), date_str
 
+    @get_and_close_connection
     def create_table(self, table_name):
 
         sql = '''
@@ -47,8 +47,9 @@ class MySQLQuery(Singleton):
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8
         ''' % table_name
         try:
-            self.cursor.execute(sql)
-            self.conn.commit()
+            cursor = connection.cursor()
+            cursor.execute(sql)
+            cursor.close()
             return table_name
         except Exception as e:
             self.logger.error("create table error: %s" % e)
@@ -60,11 +61,11 @@ class MySQLQuery(Singleton):
             # else:
             #     self.logger.error("reconnection mysql failed")
 
-    @run_on_executor
+    @run_on_executor(executor=MySQLQuery().executor)
+    @get_and_close_connection
     def insert_table(self, timestamp, user_id, ip, total_time, domain):
 
         table, date_str = self.gen_table(timestamp)
-        print self.redis.get_last_table(date_str)
         if not self.redis.get_last_table(date_str):
             print "creating table"
             table = self.create_table(table)
@@ -72,13 +73,13 @@ class MySQLQuery(Singleton):
                 self.redis.set_last_table(date_str)
 
         sql = '''
-            insert into %s (user_id,ip,timestamp,total_time,domain) values(%s,%s,%s,%s,%s);
-        '''
-        print "-----sql", sql % (table, user_id, ip, timestamp, total_time, domain)
+            insert into %s (user_id,ip,timestamp,total_time,domain) values(%s,'%s',%s,%s,'%s');
+        ''' % (table, user_id, ip, timestamp, total_time, domain)
         try:
-            self.cursor.execute(sql, (table, user_id, ip, timestamp, total_time, domain))
+            cursor = connection.cursor()
+            cursor.execute(sql)
             # self.redis.add_mysql_table(date_str)
-            self.conn.commit()
+            cursor.close()
         except Exception as e:
             self.logger.error(e)
             raise
@@ -88,18 +89,24 @@ class MySQLQuery(Singleton):
 
     @run_on_executor
     @check_key_exists
+    @get_and_close_connection
     def select(self, timestamp, sql, params):
-            self.cursor.execute(sql, params)
-            return self.cursor.fetchmany()
+        cursor = connection.cursor()
+        cursor.execute(sql, params)
+        cursor.close()
+        return self.cursor.fetchmany()
 
     @run_on_executor
     @check_key_exists
+    @get_and_close_connection
     def day_avg_time(self, user_id, timestamp=None):
         #TODO find table name in redis, if not found return false
         sql = '''
             select avg(total_time) from %s where user_id = %s
         '''
-        self.cursor.execute(sql, (table, user_id))
+        cursor = connection.cursor()
+        cursor.execute(sql, (table, user_id))
+        cursor.close()
         return self.cursor.fetchone()
 
     def __getattr__(self, item):

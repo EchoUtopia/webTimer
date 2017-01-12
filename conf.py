@@ -5,7 +5,7 @@ class Conf(Singleton):
     __slot__ = (
         'MYSQL_TABLE_PREFIX', 'HTTP_PORT', 'DB_CONFIG', 'THREAD_NUM'
         'LOG_DIR', 'LOG_PATH', 'REDIS_TABLE_EXPIRE', 'REDIS_KEY',
-        'REDIS_PERSIST', 'REDIS_CACHE'
+        'REDIS_PERSIST', 'REDIS_CACHE','MAX_POOL_SIZE'
         )
 
     LOG_DIR = "."
@@ -21,6 +21,7 @@ class Conf(Singleton):
         'charset'   :"utf8"
     }
     THREAD_NUM = 5
+    MAX_POOL_SIZE = 5
     REDIS_TABLE_EXPIRE = 3600
     REDIS_KEY = DotDict({
         "table_name"    :"table:{0}",
