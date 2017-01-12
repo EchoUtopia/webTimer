@@ -35,7 +35,7 @@ class Conf(Singleton):
     }
     REDIS_CACHE = {
         "host"  :"localhost",
-        "port"  :"13379",
+        "port"  :"6379",
         "db"    :0
     }
 

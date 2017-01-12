@@ -1,5 +1,5 @@
 __all__ = ('cache_day_avg', 'check_key_exists', 'add_executor_param', \
-           'get_and_close_connection')
+           'get_and_return_connection')
 
 import functools
 from my_redis import MyRedis
@@ -30,13 +30,10 @@ def check_key_exists(func, *args, **kwargs):
 
     return _warpper
 
-def get_and_close_connection(func):
+def get_and_return_connection(func):
 
     def _warpper(self, *args, **kwargs):
-        print "func add close connection"
-        print self.connection
         kwargs['connection'] = self.connection.get_connection()
-        print kwargs['connection']
         try:
             return func(self, *args, **kwargs)
         except Exception as e:
@@ -48,7 +45,6 @@ def get_and_close_connection(func):
 
 def add_executor_param(func):
     def _warpper(self, *args, **kwargs):
-        print "func add executor param"
         kwargs['executor'] = self.executor
         return func(self, *args, **kwargs)
     return _warpper

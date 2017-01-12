@@ -32,8 +32,8 @@ class MySQLQuery(Singleton):
         #TODO to cache the date_str for performance
         return "%s%s" % (conf.MYSQL_TABLE_PREFIX, date_str), date_str
 
-    @get_and_close_connection
-    def create_table(self, table_name):
+    @get_and_return_connection
+    def create_table(self, table_name, **_):
 
         sql = '''
         CREATE TABLE if not exists `%s` (
@@ -47,7 +47,7 @@ class MySQLQuery(Singleton):
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8
         ''' % table_name
         try:
-            cursor = connection.cursor()
+            cursor = _['connection'].cursor()
             cursor.execute(sql)
             cursor.close()
             return table_name
@@ -62,9 +62,8 @@ class MySQLQuery(Singleton):
             #     self.logger.error("reconnection mysql failed")
     @add_executor_param
     @run_on_executor
-    @get_and_close_connection
+    @get_and_return_connection
     def insert_table(self, timestamp, user_id, ip, total_time, domain, **_):
-        print "into insert_table func"
 
         table, date_str = self.gen_table(timestamp)
         if not self.redis.get_last_table(date_str):
@@ -91,22 +90,22 @@ class MySQLQuery(Singleton):
 
     @run_on_executor
     @check_key_exists
-    @get_and_close_connection
-    def select(self, timestamp, sql, params):
-        cursor = connection.cursor()
+    @get_and_return_connection
+    def select(self, timestamp, sql, params, **_):
+        cursor = _['connection'].cursor()
         cursor.execute(sql, params)
         cursor.close()
         return self.cursor.fetchmany()
 
     @run_on_executor
     @check_key_exists
-    @get_and_close_connection
-    def day_avg_time(self, user_id, timestamp=None):
+    @get_and_return_connection
+    def day_avg_time(self, user_id, timestamp=None, **_):
         #TODO find table name in redis, if not found return false
         sql = '''
             select avg(total_time) from %s where user_id = %s
         '''
-        cursor = connection.cursor()
+        cursor = _['connection'].cursor()
         cursor.execute(sql, (table, user_id))
         cursor.close()
         return self.cursor.fetchone()

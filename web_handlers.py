@@ -41,14 +41,12 @@ class UploadHandler(BaseHandler):
         user_id = self.get_current_user()['user_id']
         futures = []
         for domain, total_time in domains.iteritems():
-            print domain
-            future = yield self.query.insert_table(timestamp, user_id, self.ip, total_time, domain)
-            print future
+            future = self.query.insert_table(timestamp, user_id, self.ip, total_time, domain)
             futures.append(future)
         for i in futures:
-            print i
-            if i.exception:
-                self.logger.err(i.exception)
+            if i.exception():
+                print i.exception()
+                self.logger.error(i.exception())
         return
 
 
