@@ -12,6 +12,7 @@ class MySQLConnection(Singleton):
         self.logger = MyLogger()
         self._conn()
         self.pool = Queue.Queue(maxsize=conf.MAX_POOL_SIZE)
+        self._init_pool()
 
     def _init_pool(self):
         for _ in range(0, conf.MAX_POOL_SIZE):

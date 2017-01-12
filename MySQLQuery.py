@@ -60,10 +60,11 @@ class MySQLQuery(Singleton):
             #
             # else:
             #     self.logger.error("reconnection mysql failed")
-
-    @run_on_executor(executor=MySQLQuery().executor)
+    @add_executor_param
+    @run_on_executor
     @get_and_close_connection
-    def insert_table(self, timestamp, user_id, ip, total_time, domain):
+    def insert_table(self, timestamp, user_id, ip, total_time, domain, **_):
+        print "into insert_table func"
 
         table, date_str = self.gen_table(timestamp)
         if not self.redis.get_last_table(date_str):
@@ -75,8 +76,9 @@ class MySQLQuery(Singleton):
         sql = '''
             insert into %s (user_id,ip,timestamp,total_time,domain) values(%s,'%s',%s,%s,'%s');
         ''' % (table, user_id, ip, timestamp, total_time, domain)
+        print sql
         try:
-            cursor = connection.cursor()
+            cursor = _['connection'].cursor()
             cursor.execute(sql)
             # self.redis.add_mysql_table(date_str)
             cursor.close()
