@@ -48,6 +48,10 @@ class MyRedis(Singleton):
         key = conf.REDIS_KEY.last_table.format(date_str)
         return self.redis.get(key)
 
+    def get_last_upload_time(self, user_id):
+        key = conf.CALL_LIMIT.upload_limit
+        return self.redis.hget(key, user_id)
+
 
 
 

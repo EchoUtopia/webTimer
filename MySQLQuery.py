@@ -1,7 +1,6 @@
 import time
 from aop import *
 from my_logger import MyLogger
-from my_redis import MyRedis
 from MySQLConnection import MySQLConnection
 from conf import conf
 from common import *
@@ -11,10 +10,10 @@ from concurrent.futures import ThreadPoolExecutor
 
 class MySQLQuery(Singleton):
 
-    def __init__(self):
+    def __init__(self, redis):
         self.connection = MySQLConnection()
         self.logger = MyLogger().logger
-        self.redis = MyRedis()
+        self.redis = redis
         self.executor = ThreadPoolExecutor(conf.THREAD_NUM)
 
     @staticmethod
@@ -63,8 +62,10 @@ class MySQLQuery(Singleton):
     @add_executor_param
     @run_on_executor
     @get_and_return_connection
-    def insert_table(self, timestamp, user_id, ip, total_time, domain, **_):
-
+    def insert_table(self, timestamp, user_id, ip, domains, **_):
+        db_conn = _.get('connection')
+        if db_conn is None:
+            return
         table, date_str = self.gen_table(timestamp)
         if not self.redis.get_last_table(date_str):
             print "creating table"
@@ -72,13 +73,13 @@ class MySQLQuery(Singleton):
             if table:
                 self.redis.set_last_table(date_str)
 
-        sql = '''
-            insert into %s (user_id,ip,timestamp,total_time,domain) values(%s,'%s',%s,%s,'%s');
-        ''' % (table, user_id, ip, timestamp, total_time, domain)
+        sql = "insert into %s (user_id,ip,timestamp,total_time,domain) values(%s,%s,%s,%s,%s);" % (table, '%s', '%s', '%s', '%s', '%s')
         print sql
         try:
-            cursor = _['connection'].cursor()
-            cursor.execute(sql)
+            cursor = db_conn.cursor()
+            args = [(user_id, ip, timestamp, total_time, domain) for domain, total_time in domains.iteritems()]
+            cursor.executemany(sql, args)
+
             # self.redis.add_mysql_table(date_str)
             cursor.close()
         except Exception as e:
@@ -106,7 +107,7 @@ class MySQLQuery(Singleton):
             select avg(total_time) from %s where user_id = %s
         '''
         cursor = _['connection'].cursor()
-        cursor.execute(sql, (table, user_id))
+        cursor.execute(sql, (_['table'], user_id))
         cursor.close()
         return self.cursor.fetchone()
 

@@ -5,7 +5,7 @@ class Conf(Singleton):
     __slot__ = (
         'MYSQL_TABLE_PREFIX', 'HTTP_PORT', 'DB_CONFIG', 'THREAD_NUM'
         'LOG_DIR', 'LOG_PATH', 'REDIS_TABLE_EXPIRE', 'REDIS_KEY',
-        'REDIS_PERSIST', 'REDIS_CACHE','MAX_POOL_SIZE'
+        'REDIS_PERSIST', 'REDIS_CACHE','MAX_POOL_SIZE', 'CALL_LIMIT',
         )
 
     LOG_DIR = "."
@@ -27,6 +27,7 @@ class Conf(Singleton):
         "table_name"    :"table:{0}",
         "failed_table_name" :"failed_table:{0}",
         "last_table"    :"last_table:{0}",
+        "last_upload_time": "last_upload_time",
     })
     REDIS_PERSIST = {
         "host"  :"localhost",
@@ -37,6 +38,10 @@ class Conf(Singleton):
         "host"  :"localhost",
         "port"  :"6379",
         "db"    :0
+    }
+
+    CALL_LIMIT = {#seconds
+        'upload_interval': 150,
     }
 
 conf = Conf()
