@@ -24,7 +24,7 @@ class MySQLConnection(Singleton):
         return conn
 
     def return_connection(self, conn):
-        conn.commit()
+        # conn.commit()
         return self.pool.put(conn)
 
     def _conn(self):

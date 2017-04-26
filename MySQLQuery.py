@@ -17,7 +17,7 @@ class MySQLQuery(Singleton):
         self.executor = ThreadPoolExecutor(conf.THREAD_NUM)
 
     @staticmethod
-    def gen_table(timestamp, _type="day"):
+    def gen_table(timestamp, _type="month"):
 
         timestamp = timestamp and time.localtime(float(timestamp)) or time.localtime()
         _format = ""
@@ -73,7 +73,8 @@ class MySQLQuery(Singleton):
             if table:
                 self.redis.set_last_table(date_str)
 
-        sql = "insert into %s (user_id,ip,timestamp,total_time,domain) values(%s,%s,%s,%s,%s);" % (table, '%s', '%s', '%s', '%s', '%s')
+        sql = "insert into %s (user_id,ip,timestamp,total_time,domain) values(%s,%s,%s,%s,%s);" % \
+              (table, '%s', '%s', '%s', '%s', '%s')
         print sql
         try:
             cursor = db_conn.cursor()

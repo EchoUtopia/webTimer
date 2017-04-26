@@ -6,8 +6,10 @@ from conf import conf
 
 class MyRedis(Singleton):
     def __init__(self):
-        self.pool = redis.ConnectionPool(**conf.REDIS_CACHE)
-        self.redis = redis.Redis(connection_pool=self.pool)
+        self._pool = redis.ConnectionPool(**conf.REDIS_CACHE)
+        self.redis = redis.Redis(connection_pool=self._pool)
+        self._persist_pool = redis.ConnectionPool(**conf.REDIS_PERSIST)
+        self.persist_redis = redis.Redis(connection_pool=self._persist_pool)
 
     @staticmethod
     def get_key(user, ip, timestamp=None, _type="day"):
@@ -25,18 +27,19 @@ class MyRedis(Singleton):
         return "%s:%s:%s" % (date_str, user, ip)
 
     def add_table(self, date_str):
-        key = conf.REDIS_KEY.table_name.format(date_str)
-        self.redis.setex(key, 1, conf.REDIS_TABLE_EXPIRE)
+        key = conf.REDIS_KEY.all_tables
+        self.persist_redis.sadd(key, date_str)
 
-    def set_table(self, date_str):
-        key = conf.REDIS_KEY.table_name.format(date_str)
-        return self.redis.get(key)
+    def table_exists(self, table):
+        key = conf.REDIS_KEY.all_tables
+        member = table.replace(conf.MYSQL_TABLE_PREFIX,'')
+        return self.persist_redis.sismember(key, member)
 
     def add_failed_table(self, date_str):
         key = conf.REDIS_KEY.failed_table_name.format(date_str)
         self.redis.setex(key, 1, conf.REDIS_TABLE_EXPIRE)
 
-    def set_failed_table(self, date_str):
+    def get_failed_table(self, date_str):
         key = conf.REDIS_KEY.failed_table_name.format(date_str)
         return self.redis.get(key)
 

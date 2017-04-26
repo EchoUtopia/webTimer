@@ -24,7 +24,7 @@ class Conf(Singleton):
     MAX_POOL_SIZE = 5
     REDIS_TABLE_EXPIRE = 3600
     REDIS_KEY = DotDict({
-        "table_name"    :"table:{0}",
+        "all_tables"    :"all_tables",
         "failed_table_name" :"failed_table:{0}",
         "last_table"    :"last_table:{0}",
         "last_upload_time": "last_upload_time",
