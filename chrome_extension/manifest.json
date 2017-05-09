@@ -9,8 +9,7 @@
   },
   "permissions": [
     "idle",
-    "tabs",
-    "http://192.168.1.150:8888/"
+    "tabs"
   ],
   "browser_action": {
     "default_title": "Web Timer",

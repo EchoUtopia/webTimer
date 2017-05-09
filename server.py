@@ -10,15 +10,7 @@ class Application(tornado.web.Application):
 
     def __init__(self):
         handlers = [
-            (r"/", HomeHandler),
-            (r"/auth/register", RegisterHandler),
-            (r"/auth/login", LoginHandler),
-            (r"/auth/logout", LogoutHandler),
             (r"/upload", UploadHandler),
-            (r"/day", DayHandler),
-            (r"/week", WeekHandler),
-            (r"/month", MonthHandler),
-            (r"/year", YearHandler),
         ]
 
         _settings = dict(

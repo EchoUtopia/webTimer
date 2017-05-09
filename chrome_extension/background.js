@@ -1,5 +1,5 @@
 var update_interval = 3;
-var count_interval = 3;
+var count_interval = 300;
 var request_url = "http://127.0.0.1:8888/upload"
 
 function setDefault(){
@@ -74,7 +74,7 @@ function updateData(){
     chrome.idle.queryState(30,function(state){
 
         if (state === "active"){
-            chrome.tabs.query({'status':"complete","active":true,"lastFocusedWindow":true,},function(tabs){
+            chrome.tabs.query({"active":true,"lastFocusedWindow":true,},function(tabs){
 
                 if (tabs.length === 0){
                     return;

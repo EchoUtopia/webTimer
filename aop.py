@@ -63,7 +63,7 @@ def upload_limit(func):
         if last_upload_time is None or now - int(last_upload_time) > interval:
             return func(self)
 
-    return _wrapper()
+    return _wrapper
 
 
 
